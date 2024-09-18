@@ -50,24 +50,21 @@ class Mr_Wpdb{
     }
 
     public function enqueue_scripts_and_css(){
-        wp_enqueue_script( 'ajax-js', plugin_dir_url( __FILE__ ) . 'assets/js/ajax.js', array( 'jquery' ) );
+        wp_enqueue_script( 'ajax-js', plugin_dir_url( __FILE__ ) . 'assets/js/ajax.js', );
 
         // Contact
         if( isset( $_POST['contact_submit'] ) ){
             $person_name = isset($_POST['person_name']) ? $_POST['person_name'] : null;
             $person_phone = isset($_POST['person_phone']) ? $_POST['person_phone'] : null;
             $person_email = isset($_POST['person_email']) ? $_POST['person_email'] : null;
-
-            $data = array(
-                'ajax_url' => admin_url( 'admin-ajax.php' ),
-                'person_name' => $person_name,
-                'person_phone' => $person_phone,
-                'person_email' => $person_email,
-                'ajax_nonce' => wp_create_nonce( 'contact-ajax' )
-            );
-
-            wp_localize_script( 'ajax-js', 'contactData', $data );
         }
+
+        $data = array(
+            'ajax_url' => admin_url( 'admin-ajax.php' ),
+            'ajax_nonce' => wp_create_nonce( 'contact-ajax' )
+        );
+
+        wp_localize_script( 'ajax-js', 'contactData', $data );
     }
 
     public function db_admin_menu(){
@@ -78,7 +75,7 @@ class Mr_Wpdb{
 
         ?>
             <div class="wrap">
-                <div  id="mr-contact-submit">
+                <div id="mr-contact-submit">
                     <form action="" method="post">
                         <label for="">Name</label> <br>
                         <input type="text" name="person_name" style="margin-bottom:10px;"> <br>
@@ -86,8 +83,13 @@ class Mr_Wpdb{
                         <input type="text" name="person_phone" style="margin-bottom:10px;"> <br>
                         <label for="">Email</label> <br>
                         <input type="email" name="person_email" style="margin-bottom:10px;"> <br>
+                        <input type="hidden" name="action" value="save_contact_data">
+                        <?php wp_nonce_field(); ?>
                         <input type="submit" name="contact_submit" value="Submit" class="button button-primary">
                     </form>
+                </div>
+                <div class="mr-notification">
+                    <p style="color:#000"></p>
                 </div>
             </div>
         <?php
@@ -117,7 +119,7 @@ class Mr_Wpdb{
 
         $wpdb->insert( $table_name, $data, $format  );
 
-        wp_send_json( 'Saved successfully' );
+        wp_send_json( 'Form data submitted successfully!' );
     }
 }
 
